@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Build Your Team — Auction Draft</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ SETUP VIEW ============ -->
+<section id="setup-view" class="view">
+  <header class="setup-header">
+    <h1>Build Your Team</h1>
+    <p class="tagline">A budget auction draft, for any category.</p>
+  </header>
+
+  <div class="setup-card">
+    <div class="field-group">
+      <label class="field-label">Theme</label>
+      <div class="theme-picker" id="theme-picker">
+        <button type="button" class="theme-btn active" data-theme="nba">🏀 NBA Players</button>
+        <button type="button" class="theme-btn" data-theme="basement">🛋️ Basement Build</button>
+        <button type="button" class="theme-btn" data-theme="custom">✏️ Custom</button>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label" for="team-count">Teams</label>
+        <input type="number" id="team-count" min="2" max="6" value="2">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="budget">Starting budget ($)</label>
+        <input type="number" id="budget" min="1" value="20">
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="slots">Roster slots (comma-separated)</label>
+      <input type="text" id="slots" value="G, G, F, F, C">
+      <p class="field-hint">Each slot is filled by an item whose category matches. Unmatched items fall back to any open slot.</p>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Team names</label>
+      <div id="team-names" class="team-names"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label-row">
+        <label class="field-label">Item pool</label>
+        <button type="button" class="link-btn" id="edit-pool-btn">Edit pool</button>
+      </div>
+      <p class="field-hint" id="pool-summary"></p>
+    </div>
+
+    <!-- Pool editor (hidden by default) -->
+    <div class="field-group hidden" id="pool-editor">
+      <textarea id="pool-textarea" rows="10" spellcheck="false"></textarea>
+      <p class="field-hint">One item per line: <code>Name | Category | Value(optional)</code>. Value is optional and only used for auto-scoring at the end.</p>
+    </div>
+
+    <button type="button" class="primary-btn" id="start-btn">Start Draft</button>
+  </div>
+</section>
+
+<!-- ============ DRAFT VIEW ============ -->
+<section id="draft-view" class="view hidden">
+  <header class="draft-header">
+    <div class="draft-progress" id="draft-progress">Item 1 of 20</div>
+    <div class="draft-actions">
+      <button type="button" class="ghost-btn" id="undo-btn" disabled>Undo</button>
+      <button type="button" class="ghost-btn" id="finish-btn">Finish</button>
+    </div>
+  </header>
+
+  <div class="item-card" id="item-card">
+    <div class="item-category" id="item-category">—</div>
+    <div class="item-name" id="item-name">—</div>
+    <div class="bid-display">
+      <span class="bid-dollar">$</span><span id="bid-amount">0</span>
+    </div>
+    <div class="bid-controls">
+      <button type="button" class="bid-btn" data-amt="1">+$1</button>
+      <button type="button" class="bid-btn" data-amt="5">+$5</button>
+      <button type="button" class="bid-btn subtract" data-amt="-1">−$1</button>
+      <button type="button" class="ghost-btn small" id="reset-bid-btn">Reset</button>
+    </div>
+  </div>
+
+  <div class="leader-banner" id="leader-banner">No bidder selected yet</div>
+
+  <div class="teams-strip" id="teams-strip"></div>
+
+  <div class="resolve-actions">
+    <button type="button" class="sold-btn" id="sold-btn" disabled>SOLD!</button>
+    <button type="button" class="skip-btn" id="skip-btn">No Sale / Skip</button>
+  </div>
+</section>
+
+<!-- ============ RESULTS VIEW ============ -->
+<section id="results-view" class="view hidden">
+  <header class="setup-header">
+    <h1 id="results-title">Draft Complete</h1>
+    <p class="tagline">Here's what everyone built.</p>
+  </header>
+
+  <div class="results-grid" id="results-grid"></div>
+
+  <div class="setup-card" id="winner-card">
+    <p class="field-hint" id="auto-score-note"></p>
+    <div class="field-group">
+      <label class="field-label">Declare the winner</label>
+      <div id="winner-buttons" class="theme-picker"></div>
+    </div>
+    <div id="winner-banner" class="leader-banner hidden"></div>
+  </div>
+
+  <button type="button" class="primary-btn" id="restart-btn">New Draft</button>
+</section>
+
+<script src="js/presets.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
