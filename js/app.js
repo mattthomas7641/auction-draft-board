@@ -439,6 +439,7 @@ function renderDraft() {
       + (team.id === state.leaderId && state.currentBid > 0 && state.currentBid === team.budget ? " all-in" : "")
       + (disabled ? " disabled" : "");
     tile.dataset.teamId = team.id;
+    tile.style.setProperty("--team-color", team.color);
 
     const slotsHtml = team.slots
       .map((s) => `<span class="slot-chip${s.item ? " filled" : ""}">${s.item ? escapeHtml(s.item.name) : escapeHtml(s.label)}</span>`)
@@ -608,7 +609,7 @@ function showResults() {
 
     const card = document.createElement("div");
     card.className = "result-team";
-    card.style.borderColor = team.color;
+    card.style.setProperty("--team-color", team.color);
 
     const rosterHtml = team.slots
       .map((s) => `

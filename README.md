@@ -22,12 +22,13 @@ hits **SOLD!** to lock it in.
    also real browser history entries, so the actual browser/OS **Back**
    button works too — it'll step from Results → Draft → Setup just like
    any other page.
-1. **Setup** — pick a theme (NBA, NFL, MLB, or Custom), set the number of
-   teams, starting budget, and roster slots (e.g. `G, G, F, F, C` for NBA,
+1. **Setup** — pick a theme (NBA, NFL, or MLB), set the number of teams,
+   starting budget, and roster slots (e.g. `PG, SG, SF, PF, C` for NBA,
    `QB, RB, WR, WR, TE` for NFL, `P, C, IF, OF, DH` for MLB). Team names are
    editable. The item pool can be edited freely — one item per line as
-   `Name | Category | Value(optional) | Photo URL(optional)`. NBA/NFL/MLB ship
-   with real player headshots (NBA.com and ESPN CDNs).
+   `Name | Category | Value(optional) | Photo URL(optional)` — so you can
+   tweak a preset roster or build your own list without touching code. NBA/
+   NFL/MLB ship with real player headshots (NBA.com and ESPN CDNs).
    Pick a **draft mode**:
    - *Open Auction* — anyone can pass on an item; nothing is forced.
    - *Must-Draft (alternating)* — nothing can be skipped. Turn order rotates
@@ -59,15 +60,18 @@ hits **SOLD!** to lock it in.
 ```
 index.html       Setup / Draft / Results views (all in one page)
 css/style.css     Styling (light + dark mode)
-js/presets.js     Built-in item pools (NBA Players, Basement Build)
+js/presets.js     Built-in item pools (NBA, NFL, MLB)
 js/app.js         All app logic
 ```
 
 ## Adding your own theme
 
-Add an entry to `PRESETS` in [js/presets.js](js/presets.js), or just pick
-**Custom** in the app and paste your own list into the pool editor — no code
-changes required for one-off sessions.
+For a one-off session, just use the **Edit pool** textarea in Setup to add,
+remove, or reweight players/items on top of whichever preset is selected —
+no code changes needed. To add a whole new permanent theme (a new sport, a
+non-sports category, etc.), add an entry to `PRESETS` in
+[js/presets.js](js/presets.js) and a matching button in the theme picker in
+[index.html](index.html).
 
 ## Possible future additions
 
