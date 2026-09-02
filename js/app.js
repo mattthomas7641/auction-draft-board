@@ -11,10 +11,43 @@ let state = null;
 function $(id) { return document.getElementById(id); }
 
 // ---------------------------------------------------------------
+// Top nav (Home / Back) + view switching
+// ---------------------------------------------------------------
+
+function showView(name) {
+  $("setup-view").classList.toggle("hidden", name !== "setup");
+  $("draft-view").classList.toggle("hidden", name !== "draft");
+  $("results-view").classList.toggle("hidden", name !== "results");
+
+  const navHome = $("nav-home");
+  const navBack = $("nav-back");
+  navHome.classList.toggle("nav-btn-hidden", name === "setup");
+  navBack.classList.toggle("nav-btn-hidden", name !== "results");
+}
+
+function draftHasProgress() {
+  return !!state && (state.history.length > 0 || state.poolIndex > 0);
+}
+
+function goHome() {
+  if (draftHasProgress() && !confirm("Start over? This will discard the current draft.")) return;
+  showView("setup");
+}
+
+function initNav() {
+  $("nav-home").addEventListener("click", goHome);
+  $("nav-back").addEventListener("click", () => {
+    showView("draft");
+    renderDraft();
+  });
+}
+
+// ---------------------------------------------------------------
 // Setup view
 // ---------------------------------------------------------------
 
 function initSetup() {
+  initNav();
   els.themePicker = $("theme-picker");
   els.modePicker = $("mode-picker");
   els.modeHint = $("mode-hint");
@@ -185,9 +218,7 @@ function startDraft(mustDraft) {
     history: [],
   };
 
-  $("setup-view").classList.add("hidden");
-  $("results-view").classList.add("hidden");
-  $("draft-view").classList.remove("hidden");
+  showView("draft");
   initDraftViewOnce();
   beginItem();
   renderDraft();
@@ -522,12 +553,11 @@ function escapeHtml(str) {
 let resultsWired = false;
 
 function showResults() {
-  $("draft-view").classList.add("hidden");
-  $("results-view").classList.remove("hidden");
+  showView("results");
 
   if (!resultsWired) {
     resultsWired = true;
-    $("restart-btn").addEventListener("click", () => location.reload());
+    $("restart-btn").addEventListener("click", () => showView("setup"));
   }
 
   const grid = $("results-grid");

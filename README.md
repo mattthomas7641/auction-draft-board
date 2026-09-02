@@ -15,11 +15,16 @@ Everyone can see the current item and each team's remaining budget while they
 call out bids; the host taps the leading team and bumps the bid counter, then
 hits **SOLD!** to lock it in.
 
-1. **Setup** — pick a theme (NBA Players, Basement Build, or Custom), set the
-   number of teams, starting budget, and roster slots (e.g. `G, G, F, F, C`).
-   Team names are editable. The item pool can be edited freely — one item per
-   line as `Name | Category | Value(optional) | Photo URL(optional)`. NBA
-   Players ships with real headshots from the NBA's own CDN.
+0. **Home / Back** — a nav bar sits above every screen. **🏠 Home** jumps back
+   to Setup (confirms first if a draft is in progress, so you don't lose it by
+   accident); **← Back** appears on the Results screen to jump back into the
+   draft in progress, in case you hit Finish early.
+1. **Setup** — pick a theme (NBA, NFL, MLB, or Custom), set the number of
+   teams, starting budget, and roster slots (e.g. `G, G, F, F, C` for NBA,
+   `QB, RB, WR, WR, TE` for NFL, `P, C, IF, OF, DH` for MLB). Team names are
+   editable. The item pool can be edited freely — one item per line as
+   `Name | Category | Value(optional) | Photo URL(optional)`. NBA/NFL/MLB ship
+   with real player headshots (NBA.com and ESPN CDNs).
    Pick a **draft mode**:
    - *Open Auction* — anyone can pass on an item; nothing is forced.
    - *Must-Draft (alternating)* — nothing can be skipped. Turn order rotates
