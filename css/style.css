@@ -1,33 +1,34 @@
-/* Build Your Team — visual system derived from DESIGN.md (Nike-inspired):
-   pure black/white/soft-gray, pill CTAs, zero shadow/elevation, a single
-   display-type tier reserved for the two real "campaign moments" in this
-   product (the live bid amount, the winner declaration), sale-red reserved
-   strictly for negative states, and a second warm accent ("moment") for
-   the big, non-negative, high-stakes beats (ALL IN, winner). Every color
-   pair below is verified against WCAG AA before use. */
+/* Build Your Team — visual system: warm, light-first, grounded in real
+   player photography rather than a monochrome token skin. One confident
+   brand accent (a basketball-court orange) carries CTAs and the theme
+   choice; danger red and a gold "big moment" accent are deliberately
+   different hues so ALL IN and the winner reveal never read as an
+   error. Every color pair below is verified against WCAG AA before use.
+   Light is the default experience (feedback: dark-by-default read as
+   too heavy/technical for a casual sports product). */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
-  --bg: #ffffff;
+  --bg: #faf8f5;
   --surface: #ffffff;
-  --surface-sunken: #f5f5f5;
-  --ink: #111111;
-  --ink-muted: #707072;
-  --hairline: #cacacb;
-  --border: #8a8a8d;
-  --accent: #111111;
+  --surface-sunken: #f1ede6;
+  --ink: #1a1714;
+  --ink-muted: #6b6459;
+  --hairline: #e6e0d6;
+  --border: #8a8378;
+  --accent: #a84c0f;
   --accent-ink: #ffffff;
-  --money: #007d48;
+  --money: #0f7a4a;
   --money-ink: #ffffff;
-  --danger: #d30005;
+  --danger: #a3271a;
   --moment: #966000;
   --moment-ink: #ffffff;
   --focus-ring: #1151ff;
 
   --radius-pill: 999px;
   --radius-input: 24px;
-  --radius-panel: 12px;
+  --radius-panel: 14px;
 
   --space-xxs: 2px;
   --space-xs: 4px;
@@ -45,7 +46,10 @@
   --ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@media (prefers-color-scheme: dark) {
+/* Dark mode is intentionally off for now (see comment above) — tokens
+   kept here, unused (never-matching guard), in case a manual toggle is
+   added later. */
+@media (prefers-color-scheme: dark) and (min-width: 999999px) {
   :root {
     --bg: #0d0d0d;
     --surface: #161616;
@@ -174,6 +178,34 @@ a, button, input, textarea { font-family: inherit; }
 }
 .tagline { color: var(--ink-muted); margin: 0; font-size: 15.5px; max-width: 42ch; margin-inline: auto; }
 
+/* Hero: real player photography grounds this as a sports product before
+   a single form field is visible. */
+.hero { text-align: center; margin-bottom: var(--space-xl); }
+.hero-photos {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-lg);
+}
+.hero-photos img {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  border: 3px solid var(--bg);
+  background: var(--surface-sunken);
+  margin-left: -16px;
+}
+.hero-photos img:first-child { margin-left: 0; }
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 9vw, 56px);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  margin: 0 0 var(--space-xs);
+  line-height: 1;
+}
+
 .setup-card, #winner-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -232,8 +264,52 @@ input[type="number"]:focus-visible, input[type="text"]:focus-visible, textarea:f
   text-underline-offset: 3px;
 }
 
-.theme-picker { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
-.theme-btn {
+/* Theme picker: a bold visual choice (a real photo per sport), not a
+   plain pill row buried in a form. */
+.theme-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+.theme-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg) var(--space-sm);
+  border-radius: var(--radius-panel);
+  border: 2px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s var(--ease-out), background 0.15s var(--ease-out), transform 0.1s var(--ease-out);
+}
+.theme-tile img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  background: var(--surface-sunken);
+}
+.theme-tile span {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+@media (hover: hover) and (pointer: fine) {
+  .theme-tile:hover { border-color: var(--accent); transform: translateY(-2px); }
+}
+.theme-tile.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+}
+.theme-tile.active span { color: var(--accent); }
+
+/* Mode picker + winner-declare buttons: plain pill choices, no photo. */
+.mode-picker { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
+.mode-btn {
   flex: 1;
   min-width: 100px;
   min-height: 44px;
@@ -248,12 +324,12 @@ input[type="number"]:focus-visible, input[type="text"]:focus-visible, textarea:f
   transition: background 0.15s var(--ease-out), color 0.15s var(--ease-out), border-color 0.15s var(--ease-out);
 }
 @media (hover: hover) and (pointer: fine) {
-  .theme-btn:hover { border-color: var(--ink); }
+  .mode-btn:hover { border-color: var(--ink); }
 }
-.theme-btn.active {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--bg);
+.mode-btn.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
 .team-names { display: flex; flex-direction: column; gap: var(--space-sm); }
@@ -265,8 +341,8 @@ input[type="number"]:focus-visible, input[type="text"]:focus-visible, textarea:f
   padding: 0 var(--space-xl);
   border: none;
   border-radius: var(--radius-pill);
-  background: var(--ink);
-  color: var(--bg);
+  background: var(--accent);
+  color: var(--accent-ink);
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -380,8 +456,8 @@ input[type="number"]:focus-visible, input[type="text"]:focus-visible, textarea:f
   padding: 0 var(--space-xl);
   border-radius: var(--radius-pill);
   border: none;
-  background: var(--ink);
-  color: var(--bg);
+  background: var(--accent);
+  color: var(--accent-ink);
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -540,7 +616,6 @@ input[type="number"]:focus-visible, input[type="text"]:focus-visible, textarea:f
 .result-slot-label { color: var(--ink-muted); font-weight: 700; font-size: 10.5px; text-transform: uppercase; flex-shrink: 0; letter-spacing: 0.03em; }
 .result-score { margin-top: var(--space-md); font-weight: 700; color: var(--moment); text-align: right; font-size: 14px; }
 
-#winner-buttons .theme-btn { min-width: 100px; }
 
 .leader-banner#winner-banner {
   font-size: 22px;

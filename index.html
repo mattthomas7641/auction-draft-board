@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body>
 
@@ -24,21 +24,34 @@
 
 <!-- ============ SETUP VIEW ============ -->
 <section id="setup-view" class="view">
-  <header class="setup-header">
+  <header class="hero">
+    <div class="hero-photos" id="hero-photos" aria-hidden="true">
+      <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png" alt="">
+      <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203507.png" alt="">
+      <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png" alt="">
+      <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/201939.png" alt="">
+      <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/1641705.png" alt="">
+    </div>
     <h1>Build Your Team</h1>
     <p class="tagline">Same budget for everyone. Bid it out loud. Best roster wins.</p>
   </header>
 
-  <div class="setup-card">
-    <div class="field-group">
-      <label class="field-label">Theme</label>
-      <div class="theme-picker" id="theme-picker">
-        <button type="button" class="theme-btn active" data-theme="nba">NBA</button>
-        <button type="button" class="theme-btn" data-theme="nfl">NFL</button>
-        <button type="button" class="theme-btn" data-theme="mlb">MLB</button>
-      </div>
-    </div>
+  <div class="theme-picker" id="theme-picker">
+    <button type="button" class="theme-tile active" data-theme="nba">
+      <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png" alt="">
+      <span>NBA</span>
+    </button>
+    <button type="button" class="theme-tile" data-theme="nfl">
+      <img src="https://a.espncdn.com/i/headshots/nfl/players/full/3139477.png" alt="">
+      <span>NFL</span>
+    </button>
+    <button type="button" class="theme-tile" data-theme="mlb">
+      <img src="https://a.espncdn.com/i/headshots/mlb/players/full/39832.png" alt="">
+      <span>MLB</span>
+    </button>
+  </div>
 
+  <div class="setup-card">
     <div class="field-row">
       <div class="field-group">
         <label class="field-label" for="team-count">Teams</label>
@@ -63,9 +76,9 @@
 
     <div class="field-group">
       <label class="field-label">Draft mode</label>
-      <div class="theme-picker" id="mode-picker">
-        <button type="button" class="theme-btn active" data-mode="open">Open Auction</button>
-        <button type="button" class="theme-btn" data-mode="must">Must-Draft (alternating)</button>
+      <div class="mode-picker" id="mode-picker">
+        <button type="button" class="mode-btn active" data-mode="open">Open Auction</button>
+        <button type="button" class="mode-btn" data-mode="must">Must-Draft (alternating)</button>
       </div>
       <p class="field-hint" id="mode-hint">Any item can go unsold if nobody bids on it.</p>
     </div>
@@ -141,7 +154,7 @@
     <p class="field-hint" id="auto-score-note"></p>
     <div class="field-group">
       <label class="field-label">Declare the winner</label>
-      <div id="winner-buttons" class="theme-picker"></div>
+      <div id="winner-buttons" class="mode-picker"></div>
     </div>
     <div id="winner-banner" class="leader-banner hidden" aria-live="assertive"></div>
   </div>
@@ -149,7 +162,7 @@
   <button type="button" class="primary-btn" id="restart-btn">New Draft</button>
 </section>
 
-<script src="js/presets.js?v=5"></script>
-<script src="js/app.js?v=5"></script>
+<script src="js/presets.js?v=6"></script>
+<script src="js/app.js?v=6"></script>
 </body>
 </html>

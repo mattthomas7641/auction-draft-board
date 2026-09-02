@@ -57,14 +57,19 @@ hits **SOLD!** to lock it in.
 
 ## Design system
 
-The visual system (`DESIGN.md`) is adapted from Nike's commerce chrome: pure
-black/white/soft-gray, pill-shaped controls, zero drop-shadow elevation, and
-a single display-type tier (Bebas Neue) reserved for the two real "hero"
-moments in the product — the live bid amount and the winner declaration.
-`PRODUCT.md` records who this is for and why. Everything else stays flat
-Inter, with one warm accent ("moment": gold/amber) for big, non-negative,
-high-stakes beats like ALL IN and the winner reveal, and red reserved
-strictly for negative states (a low budget, a subtract action).
+Warm, light-first, and grounded in real player photography rather than a
+generic dark SaaS template: the setup screen opens on an actual photo strip
+of current players before a single form field appears, and the theme picker
+is three photo tiles (NBA/NFL/MLB), not a plain pill row. One confident
+brand accent (a basketball-court orange) carries CTAs and the active theme;
+a gold "big moment" accent covers ALL IN and the winner reveal so the
+product's most-filmed beat never reads as an error; red stays strictly
+negative (low budget, subtract). Bebas Neue is reserved for real hero
+moments — the setup headline, the live bid amount, the winner declaration —
+everything else is Inter. `PRODUCT.md` records who this is for and why;
+`DESIGN.md` (adapted from Nike's commerce chrome via `npx getdesign`) is the
+underlying token discipline — flat surfaces, pill controls, no drop-shadow
+elevation.
 
 ## Project structure
 

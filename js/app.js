@@ -110,6 +110,15 @@ function initSetup() {
       els.poolTextarea.value = poolToText(preset.items);
     }
     updatePoolSummary();
+    updateHeroPhotos(preset);
+  }
+
+  function updateHeroPhotos(preset) {
+    const photos = preset.items.filter((it) => it.photo).map((it) => it.photo);
+    const imgs = document.querySelectorAll("#hero-photos img");
+    imgs.forEach((img, i) => {
+      if (photos[i]) img.src = photos[i];
+    });
   }
 
   function poolToText(items) {
@@ -130,7 +139,7 @@ function initSetup() {
   }
 
   els.themePicker.addEventListener("click", (e) => {
-    const btn = e.target.closest(".theme-btn");
+    const btn = e.target.closest(".theme-tile");
     if (!btn) return;
     [...els.themePicker.children].forEach((b) => b.classList.toggle("active", b === btn));
     currentTheme = btn.dataset.theme;
@@ -139,7 +148,7 @@ function initSetup() {
   });
 
   els.modePicker.addEventListener("click", (e) => {
-    const btn = e.target.closest(".theme-btn");
+    const btn = e.target.closest(".mode-btn");
     if (!btn) return;
     [...els.modePicker.children].forEach((b) => b.classList.toggle("active", b === btn));
     mustDraft = btn.dataset.mode === "must";
@@ -654,7 +663,7 @@ function showResults() {
   state.teams.forEach((team) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "theme-btn";
+    btn.className = "mode-btn";
     btn.textContent = team.name;
     btn.addEventListener("click", () => {
       const banner = $("winner-banner");
