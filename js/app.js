@@ -12,9 +12,19 @@ function $(id) { return document.getElementById(id); }
 
 // ---------------------------------------------------------------
 // Top nav (Home / Back) + view switching
+//
+// Setup / Draft / Results are treated as real browser history entries
+// (via pushState), so the actual browser/OS Back button moves between
+// them too, not just our in-app buttons.
 // ---------------------------------------------------------------
 
+let currentView = "setup";
+
+// Pure DOM update — does not touch history. Used both for forward
+// navigation (after a pushState) and when popstate fires from the
+// browser's own Back/Forward buttons.
 function showView(name) {
+  currentView = name;
   $("setup-view").classList.toggle("hidden", name !== "setup");
   $("draft-view").classList.toggle("hidden", name !== "draft");
   $("results-view").classList.toggle("hidden", name !== "results");
@@ -23,23 +33,45 @@ function showView(name) {
   const navBack = $("nav-back");
   navHome.classList.toggle("nav-btn-hidden", name === "setup");
   navBack.classList.toggle("nav-btn-hidden", name !== "results");
+
+  if (name === "draft" && state) renderDraft();
+}
+
+// Forward navigation: push a new history entry so the browser's Back
+// button can return to whatever we're leaving.
+function pushView(name) {
+  if (name === currentView) return;
+  const depth = (history.state?.depth || 0) + 1;
+  history.pushState({ view: name, depth }, "", "#" + name);
+  showView(name);
 }
 
 function draftHasProgress() {
   return !!state && (state.history.length > 0 || state.poolIndex > 0);
 }
 
+// Jump straight back to Setup, no matter how many entries deep we are.
+function goToSetupRoot() {
+  const depth = history.state?.depth || 0;
+  if (depth > 0) history.go(-depth);
+  else showView("setup");
+}
+
 function goHome() {
   if (draftHasProgress() && !confirm("Start over? This will discard the current draft.")) return;
-  showView("setup");
+  goToSetupRoot();
 }
 
 function initNav() {
-  $("nav-home").addEventListener("click", goHome);
-  $("nav-back").addEventListener("click", () => {
-    showView("draft");
-    renderDraft();
+  if (!history.state) {
+    history.replaceState({ view: "setup", depth: 0 }, "", location.pathname + location.search);
+  }
+  window.addEventListener("popstate", (e) => {
+    showView(e.state?.view || "setup");
   });
+
+  $("nav-home").addEventListener("click", goHome);
+  $("nav-back").addEventListener("click", () => history.back());
 }
 
 // ---------------------------------------------------------------
@@ -218,10 +250,9 @@ function startDraft(mustDraft) {
     history: [],
   };
 
-  showView("draft");
   initDraftViewOnce();
   beginItem();
-  renderDraft();
+  pushView("draft");
 }
 
 // ---------------------------------------------------------------
@@ -553,11 +584,11 @@ function escapeHtml(str) {
 let resultsWired = false;
 
 function showResults() {
-  showView("results");
+  pushView("results");
 
   if (!resultsWired) {
     resultsWired = true;
-    $("restart-btn").addEventListener("click", () => showView("setup"));
+    $("restart-btn").addEventListener("click", goToSetupRoot);
   }
 
   const grid = $("results-grid");

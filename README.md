@@ -18,7 +18,10 @@ hits **SOLD!** to lock it in.
 0. **Home / Back** — a nav bar sits above every screen. **🏠 Home** jumps back
    to Setup (confirms first if a draft is in progress, so you don't lose it by
    accident); **← Back** appears on the Results screen to jump back into the
-   draft in progress, in case you hit Finish early.
+   draft in progress, in case you hit Finish early. Setup/Draft/Results are
+   also real browser history entries, so the actual browser/OS **Back**
+   button works too — it'll step from Results → Draft → Setup just like
+   any other page.
 1. **Setup** — pick a theme (NBA, NFL, MLB, or Custom), set the number of
    teams, starting budget, and roster slots (e.g. `G, G, F, F, C` for NBA,
    `QB, RB, WR, WR, TE` for NFL, `P, C, IF, OF, DH` for MLB). Team names are
