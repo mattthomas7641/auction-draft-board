@@ -3,6 +3,7 @@
 // host taps the leading team + bumps the bid, then confirms "SOLD!".
 
 const TEAM_COLORS = ["#1f7a4d", "#b8792a", "#2f6fb0", "#a13f7a", "#b8432f", "#4f7a1f"];
+const MAX_LOG_ENTRIES = 5;
 
 const els = {}; // filled in on DOMContentLoaded
 let state = null;
@@ -15,6 +16,8 @@ function $(id) { return document.getElementById(id); }
 
 function initSetup() {
   els.themePicker = $("theme-picker");
+  els.modePicker = $("mode-picker");
+  els.modeHint = $("mode-hint");
   els.teamCount = $("team-count");
   els.budget = $("budget");
   els.slots = $("slots");
@@ -26,7 +29,13 @@ function initSetup() {
   els.startBtn = $("start-btn");
 
   let currentTheme = "nba";
+  let mustDraft = false;
   let poolDirty = false; // has the user hand-edited the pool textarea?
+
+  const MODE_HINTS = {
+    open: "Any item can go unsold if nobody bids on it.",
+    must: "Every item must go to someone. Turns rotate through teams — the team on turn gets it for free unless another team outbids them.",
+  };
 
   function applyThemeDefaults(themeKey) {
     const preset = PRESETS[themeKey];
@@ -40,7 +49,11 @@ function initSetup() {
 
   function poolToText(items) {
     return items
-      .map((it) => `${it.name} | ${it.category}${it.value != null ? " | " + it.value : ""}`)
+      .map((it) => {
+        const parts = [it.name, it.category, it.value != null ? it.value : "", it.photo || ""];
+        while (parts.length && parts[parts.length - 1] === "") parts.pop();
+        return parts.join(" | ");
+      })
       .join("\n");
   }
 
@@ -58,6 +71,14 @@ function initSetup() {
     currentTheme = btn.dataset.theme;
     poolDirty = false;
     applyThemeDefaults(currentTheme);
+  });
+
+  els.modePicker.addEventListener("click", (e) => {
+    const btn = e.target.closest(".theme-btn");
+    if (!btn) return;
+    [...els.modePicker.children].forEach((b) => b.classList.toggle("active", b === btn));
+    mustDraft = btn.dataset.mode === "must";
+    els.modeHint.textContent = MODE_HINTS[btn.dataset.mode];
   });
 
   els.editPoolBtn.addEventListener("click", () => {
@@ -95,7 +116,7 @@ function initSetup() {
     }
   }
 
-  els.startBtn.addEventListener("click", startDraft);
+  els.startBtn.addEventListener("click", () => startDraft(mustDraft));
 
   renderTeamNameInputs();
   applyThemeDefaults(currentTheme);
@@ -113,6 +134,7 @@ function parsePoolText(text) {
         name: parts[0] || "Untitled",
         category: parts[1] || "Item",
         value: Number.isFinite(value) ? value : null,
+        photo: parts[3] || null,
       };
     });
 }
@@ -126,7 +148,7 @@ function shuffle(arr) {
   return a;
 }
 
-function startDraft() {
+function startDraft(mustDraft) {
   const budget = Math.max(0, Number(els.budget.value) || 0);
   const slotLabels = els.slots.value.split(",").map((s) => s.trim()).filter(Boolean);
   const nameInputs = [...els.teamNames.querySelectorAll("input")];
@@ -156,6 +178,10 @@ function startDraft() {
     poolIndex: 0,
     currentBid: 0,
     leaderId: null,
+    mustDraft: !!mustDraft,
+    turnIndex: 0,
+    autoDraftCursor: 0,
+    log: [],
     history: [],
   };
 
@@ -163,6 +189,7 @@ function startDraft() {
   $("results-view").classList.add("hidden");
   $("draft-view").classList.remove("hidden");
   initDraftViewOnce();
+  beginItem();
   renderDraft();
 }
 
@@ -179,6 +206,8 @@ function initDraftViewOnce() {
   els.draftProgress = $("draft-progress");
   els.undoBtn = $("undo-btn");
   els.finishBtn = $("finish-btn");
+  els.itemPhoto = $("item-photo");
+  els.itemAvatar = $("item-avatar");
   els.itemCategory = $("item-category");
   els.itemName = $("item-name");
   els.bidAmount = $("bid-amount");
@@ -187,6 +216,7 @@ function initDraftViewOnce() {
   els.soldBtn = $("sold-btn");
   els.skipBtn = $("skip-btn");
   els.resetBidBtn = $("reset-bid-btn");
+  els.eventLog = $("event-log");
 
   document.querySelectorAll(".bid-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -198,13 +228,18 @@ function initDraftViewOnce() {
 
   els.resetBidBtn.addEventListener("click", () => {
     state.currentBid = 0;
-    state.leaderId = null;
+    state.leaderId = state.mustDraft ? (getOnTurnTeam() || {}).id ?? null : null;
     renderDraft();
   });
 
   els.teamsStrip.addEventListener("click", (e) => {
+    const allInBtn = e.target.closest(".all-in-btn");
+    if (allInBtn) {
+      goAllIn(Number(allInBtn.dataset.teamId));
+      return;
+    }
     const tile = e.target.closest(".team-tile");
-    if (!tile || tile.disabled) return;
+    if (!tile || tile.classList.contains("disabled")) return;
     const teamId = Number(tile.dataset.teamId);
     state.leaderId = state.leaderId === teamId ? null : teamId;
     renderDraft();
@@ -234,6 +269,66 @@ function draftIsOver() {
   return state.poolIndex >= state.pool.length || state.teams.every((t) => !teamHasRoom(t));
 }
 
+// Who gets an item for free if nobody outbids them (must-draft mode only).
+function getOnTurnTeam() {
+  const n = state.teams.length;
+  for (let i = 0; i < n; i++) {
+    const idx = (state.turnIndex + i) % n;
+    const t = state.teams[idx];
+    if (teamHasRoom(t)) return t;
+  }
+  return null;
+}
+
+function advanceTurn() {
+  const onTurn = getOnTurnTeam();
+  if (!onTurn) return;
+  const idx = state.teams.findIndex((t) => t.id === onTurn.id);
+  state.turnIndex = (idx + 1) % state.teams.length;
+}
+
+// Reset the bid counter for a freshly-revealed item. In must-draft mode the
+// on-turn team is pre-selected as a fallback leader at $0 so nothing can be
+// skipped; in open auction mode nobody is selected until a team is tapped.
+function beginItem() {
+  state.currentBid = 0;
+  if (state.mustDraft) {
+    const onTurn = getOnTurnTeam();
+    state.leaderId = onTurn ? onTurn.id : null;
+  } else {
+    state.leaderId = null;
+  }
+}
+
+function goAllIn(teamId) {
+  const team = state.teams.find((t) => t.id === teamId);
+  if (!team || team.budget <= 0 || !teamHasRoom(team)) return;
+  state.currentBid = team.budget;
+  state.leaderId = team.id;
+  renderDraft();
+}
+
+// A team with $0 left can't out-bid anyone, so once an item goes unclaimed
+// it's handed to the next broke team (round-robin) that still has room,
+// instead of being discarded — nobody gets stuck with empty roster slots.
+function findBrokeTeamForAutoDraft(item) {
+  const n = state.teams.length;
+  for (let i = 0; i < n; i++) {
+    const idx = (state.autoDraftCursor + i) % n;
+    const t = state.teams[idx];
+    if (t.budget === 0 && teamHasRoom(t) && findSlotForItem(t, item) !== -1) {
+      state.autoDraftCursor = (idx + 1) % n;
+      return t;
+    }
+  }
+  return null;
+}
+
+function logEvent(msg) {
+  state.log.unshift(msg);
+  state.log = state.log.slice(0, MAX_LOG_ENTRIES);
+}
+
 function renderDraft() {
   const item = currentItem();
 
@@ -245,42 +340,102 @@ function renderDraft() {
   els.draftProgress.textContent = `Item ${state.poolIndex + 1} of ${state.pool.length}`;
   els.undoBtn.disabled = state.history.length === 0;
 
+  renderItemPhoto(item);
   els.itemCategory.textContent = item.category;
   els.itemName.textContent = item.name;
   els.bidAmount.textContent = state.currentBid;
 
   const leaderTeam = state.teams.find((t) => t.id === state.leaderId) || null;
-  els.leaderBanner.textContent = leaderTeam
-    ? `${leaderTeam.name} is bidding $${state.currentBid}`
-    : "Tap a team below once they're the highest bidder";
-  els.leaderBanner.classList.toggle("active", !!leaderTeam);
+  const onTurnTeam = state.mustDraft ? getOnTurnTeam() : null;
+  const isAllIn = leaderTeam && state.currentBid > 0 && state.currentBid === leaderTeam.budget;
+  const isDefaultOnTurn = state.mustDraft && leaderTeam && onTurnTeam && leaderTeam.id === onTurnTeam.id && state.currentBid === 0;
+
+  els.leaderBanner.classList.remove("active", "all-in", "on-turn");
+  if (!leaderTeam) {
+    els.leaderBanner.textContent = "Tap a team below once they're the highest bidder";
+  } else if (isAllIn) {
+    els.leaderBanner.textContent = `🔥 ${leaderTeam.name} is ALL IN for $${state.currentBid} — others can still steal by outbidding!`;
+    els.leaderBanner.classList.add("all-in");
+  } else if (isDefaultOnTurn) {
+    els.leaderBanner.textContent = `🔁 ${leaderTeam.name}'s turn — they get this for $0 unless outbid`;
+    els.leaderBanner.classList.add("on-turn");
+  } else {
+    els.leaderBanner.textContent = `${leaderTeam.name} is bidding $${state.currentBid}`;
+    els.leaderBanner.classList.add("active");
+  }
 
   els.teamsStrip.innerHTML = "";
   state.teams.forEach((team) => {
     const room = teamHasRoom(team);
     const canAfford = team.budget >= state.currentBid;
     const disabled = !room || !canAfford;
+    const canAllIn = room && team.budget > 0;
 
-    const tile = document.createElement("button");
-    tile.type = "button";
-    tile.className = "team-tile" + (team.id === state.leaderId ? " leader" : "") + (disabled ? " disabled" : "");
-    tile.disabled = disabled;
+    const tile = document.createElement("div");
+    tile.className = "team-tile"
+      + (team.id === state.leaderId ? " leader" : "")
+      + (team.id === state.leaderId && state.currentBid > 0 && state.currentBid === team.budget ? " all-in" : "")
+      + (disabled ? " disabled" : "");
     tile.dataset.teamId = team.id;
-    tile.style.borderColor = team.id === state.leaderId ? "" : "";
 
     const slotsHtml = team.slots
-      .map((s) => `<span class="slot-chip${s.item ? " filled" : ""}">${s.item ? s.item.name : s.label}</span>`)
+      .map((s) => `<span class="slot-chip${s.item ? " filled" : ""}">${s.item ? escapeHtml(s.item.name) : escapeHtml(s.label)}</span>`)
       .join("");
 
     tile.innerHTML = `
-      <span class="team-tile-name">${escapeHtml(team.name)}</span>
-      <span class="team-tile-budget${team.budget < 5 ? " low" : ""}">$${team.budget}</span>
+      <div class="team-tile-top">
+        <span class="team-tile-name">${escapeHtml(team.name)}${state.mustDraft && onTurnTeam && onTurnTeam.id === team.id ? " ⏳" : ""}</span>
+        <span class="team-tile-budget${team.budget < 5 ? " low" : ""}">$${team.budget}</span>
+      </div>
       <span class="team-tile-slots">${slotsHtml}</span>
+      <button type="button" class="all-in-btn" data-team-id="${team.id}" ${canAllIn ? "" : "disabled"}>ALL IN ($${team.budget})</button>
     `;
     els.teamsStrip.appendChild(tile);
   });
 
+  renderEventLog();
+
   els.soldBtn.disabled = state.leaderId === null;
+  els.skipBtn.classList.toggle("hidden", state.mustDraft);
+}
+
+function renderItemPhoto(item) {
+  if (item.photo) {
+    els.itemPhoto.src = item.photo;
+    els.itemPhoto.alt = item.name;
+    els.itemPhoto.classList.remove("hidden");
+    els.itemAvatar.classList.add("hidden");
+    els.itemPhoto.onerror = () => showAvatarFallback(item);
+  } else {
+    showAvatarFallback(item);
+  }
+}
+
+function showAvatarFallback(item) {
+  els.itemPhoto.classList.add("hidden");
+  els.itemPhoto.onerror = null;
+  els.itemAvatar.classList.remove("hidden");
+  els.itemAvatar.textContent = initials(item.name);
+  els.itemAvatar.style.background = colorForCategory(item.category);
+}
+
+function initials(name) {
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.[0] || "";
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  return (first + last).toUpperCase();
+}
+
+function colorForCategory(category) {
+  let hash = 0;
+  for (let i = 0; i < category.length; i++) hash = (hash * 31 + category.charCodeAt(i)) % 360;
+  return `hsl(${hash}, 45%, 42%)`;
+}
+
+function renderEventLog() {
+  els.eventLog.innerHTML = state.log
+    .map((msg) => `<div class="event-log-entry">${escapeHtml(msg)}</div>`)
+    .join("");
 }
 
 function snapshot() {
@@ -289,6 +444,9 @@ function snapshot() {
     poolIndex: state.poolIndex,
     currentBid: state.currentBid,
     leaderId: state.leaderId,
+    turnIndex: state.turnIndex,
+    autoDraftCursor: state.autoDraftCursor,
+    log: state.log,
   }));
 }
 
@@ -308,21 +466,33 @@ function confirmSold() {
   }
 
   pushHistory();
-  team.budget -= state.currentBid;
-  team.slots[slotIdx] = { label: team.slots[slotIdx].label, item: { name: item.name, value: item.value } };
+  const bidAmt = state.currentBid;
+  team.budget -= bidAmt;
+  team.slots[slotIdx] = { label: team.slots[slotIdx].label, item: { name: item.name, value: item.value, photo: item.photo } };
+  logEvent(`✅ ${item.name} → ${team.name} for $${bidAmt}`);
 
+  if (state.mustDraft) advanceTurn();
   state.poolIndex += 1;
-  state.currentBid = 0;
-  state.leaderId = null;
+  beginItem();
   renderDraft();
 }
 
 function skipItem() {
-  if (!currentItem()) return;
+  const item = currentItem();
+  if (!item) return;
   pushHistory();
+
+  const brokeTeam = findBrokeTeamForAutoDraft(item);
+  if (brokeTeam) {
+    const slotIdx = findSlotForItem(brokeTeam, item);
+    brokeTeam.slots[slotIdx] = { label: brokeTeam.slots[slotIdx].label, item: { name: item.name, value: item.value, photo: item.photo } };
+    logEvent(`🎁 ${item.name} auto-drafted to ${brokeTeam.name} (out of budget)`);
+  } else {
+    logEvent(`⏭️ ${item.name} — no takers, skipped`);
+  }
+
   state.poolIndex += 1;
-  state.currentBid = 0;
-  state.leaderId = null;
+  beginItem();
   renderDraft();
 }
 
@@ -333,6 +503,9 @@ function undo() {
   state.poolIndex = prev.poolIndex;
   state.currentBid = prev.currentBid;
   state.leaderId = prev.leaderId;
+  state.turnIndex = prev.turnIndex;
+  state.autoDraftCursor = prev.autoDraftCursor;
+  state.log = prev.log;
   renderDraft();
 }
 

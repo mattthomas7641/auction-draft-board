@@ -18,12 +18,29 @@ hits **SOLD!** to lock it in.
 1. **Setup** — pick a theme (NBA Players, Basement Build, or Custom), set the
    number of teams, starting budget, and roster slots (e.g. `G, G, F, F, C`).
    Team names are editable. The item pool can be edited freely — one item per
-   line as `Name | Category | Value(optional)`.
-2. **Draft** — the current item is shown with a live bid counter (`+$1`,
-   `+$5`, `−$1`, `Reset`). Tap a team once they're the high bidder, then hit
-   **SOLD!** to deduct the bid from their budget and slot the item into a
-   matching roster slot (falls back to any open slot if no category match).
-   **Undo** reverts the last sale/skip.
+   line as `Name | Category | Value(optional) | Photo URL(optional)`. NBA
+   Players ships with real headshots from the NBA's own CDN.
+   Pick a **draft mode**:
+   - *Open Auction* — anyone can pass on an item; nothing is forced.
+   - *Must-Draft (alternating)* — nothing can be skipped. Turn order rotates
+     through teams; whoever's turn it is gets the current item for $0 by
+     default, unless another team outbids them.
+2. **Draft** — the current item is shown with a photo (falls back to an
+   initials avatar if there's no image or it fails to load) and a live bid
+   counter (`+$1`, `+$5`, `−$1`, `Reset`). Tap a team once they're the high
+   bidder, then hit **SOLD!** to deduct the bid from their budget and slot the
+   item into a matching roster slot (falls back to any open slot if no
+   category match). **Undo** reverts the last action.
+   - **ALL IN** — a team can commit their *entire* remaining budget to the
+     current item in one tap. Other teams can still steal it by outbidding if
+     they can afford to; if nobody does, the all-in team wins it and drops to
+     $0.
+   - **Broke-team safety net** — once a team's budget hits $0, they can no
+     longer win a contested bid, so in Open Auction mode any item nobody else
+     wants is automatically handed to a $0 team with room instead of being
+     discarded — everyone still ends up with a full roster. A small activity
+     log at the bottom of the draft view records every sale, auto-draft, and
+     skip.
 3. **Results** — once every roster is full or the pool runs out, see every
    team's final roster and spend side by side. If items were given point
    values, an auto-score is shown as a reference; either way you can declare

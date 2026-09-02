@@ -48,6 +48,15 @@
     </div>
 
     <div class="field-group">
+      <label class="field-label">Draft mode</label>
+      <div class="theme-picker" id="mode-picker">
+        <button type="button" class="theme-btn active" data-mode="open">🎤 Open Auction</button>
+        <button type="button" class="theme-btn" data-mode="must">🔁 Must-Draft (alternating)</button>
+      </div>
+      <p class="field-hint" id="mode-hint">Any item can go unsold if nobody bids on it.</p>
+    </div>
+
+    <div class="field-group">
       <div class="field-label-row">
         <label class="field-label">Item pool</label>
         <button type="button" class="link-btn" id="edit-pool-btn">Edit pool</button>
@@ -58,7 +67,7 @@
     <!-- Pool editor (hidden by default) -->
     <div class="field-group hidden" id="pool-editor">
       <textarea id="pool-textarea" rows="10" spellcheck="false"></textarea>
-      <p class="field-hint">One item per line: <code>Name | Category | Value(optional)</code>. Value is optional and only used for auto-scoring at the end.</p>
+      <p class="field-hint">One item per line: <code>Name | Category | Value(optional) | Photo URL(optional)</code>. Value is only used for auto-scoring at the end; photo falls back to initials if left blank or broken.</p>
     </div>
 
     <button type="button" class="primary-btn" id="start-btn">Start Draft</button>
@@ -76,6 +85,10 @@
   </header>
 
   <div class="item-card" id="item-card">
+    <div class="item-photo-wrap" id="item-photo-wrap">
+      <img id="item-photo" class="item-photo hidden" alt="">
+      <div id="item-avatar" class="item-avatar hidden"></div>
+    </div>
     <div class="item-category" id="item-category">—</div>
     <div class="item-name" id="item-name">—</div>
     <div class="bid-display">
@@ -97,6 +110,8 @@
     <button type="button" class="sold-btn" id="sold-btn" disabled>SOLD!</button>
     <button type="button" class="skip-btn" id="skip-btn">No Sale / Skip</button>
   </div>
+
+  <div class="event-log" id="event-log"></div>
 </section>
 
 <!-- ============ RESULTS VIEW ============ -->

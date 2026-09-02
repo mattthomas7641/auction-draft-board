@@ -164,6 +164,30 @@ textarea { resize: vertical; font-family: "SFMono-Regular", Menlo, monospace; fo
   gap: 14px;
 }
 
+.item-photo-wrap {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--surface-sunken);
+  border: 3px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.item-photo { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+.item-avatar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--accent-ink);
+}
+
 .item-category {
   font-size: 13px;
   font-weight: 700;
@@ -211,6 +235,8 @@ textarea { resize: vertical; font-family: "SFMono-Regular", Menlo, monospace; fo
   font-size: 14px;
 }
 .leader-banner.active { background: var(--gold); color: var(--accent-ink); }
+.leader-banner.all-in { background: var(--danger); color: #fff; }
+.leader-banner.on-turn { background: var(--surface-sunken); color: var(--ink); border: 1.5px dashed var(--ink-faint, var(--border)); }
 
 .teams-strip {
   display: grid;
@@ -231,8 +257,10 @@ textarea { resize: vertical; font-family: "SFMono-Regular", Menlo, monospace; fo
   gap: 6px;
 }
 .team-tile.leader { border-color: var(--gold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 25%, transparent); }
-.team-tile:disabled, .team-tile.disabled { opacity: 0.45; cursor: not-allowed; }
+.team-tile.all-in { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 25%, transparent); }
+.team-tile.disabled { opacity: 0.45; cursor: not-allowed; }
 
+.team-tile-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .team-tile-name { font-weight: 700; font-size: 15px; }
 .team-tile-budget { font-size: 20px; font-weight: 800; color: var(--money); font-variant-numeric: tabular-nums; }
 .team-tile-budget.low { color: var(--money-low); }
@@ -246,6 +274,36 @@ textarea { resize: vertical; font-family: "SFMono-Regular", Menlo, monospace; fo
   font-weight: 600;
 }
 .slot-chip.filled { background: var(--accent); color: var(--accent-ink); }
+
+.all-in-btn {
+  margin-top: 4px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--danger);
+  background: transparent;
+  color: var(--danger);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.all-in-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.event-log {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.event-log-entry {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+.event-log-entry:first-child { color: var(--ink); font-weight: 600; }
 
 .resolve-actions { display: flex; gap: 10px; }
 .sold-btn {
