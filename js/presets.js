@@ -14,7 +14,6 @@ function espnHeadshot(sport, id) {
 const PRESETS = {
   nba: {
     label: "NBA Players",
-    icon: "🏀",
     defaultSlots: "PG, SG, SF, PF, C",
     defaultBudget: 20,
     items: [
@@ -54,7 +53,6 @@ const PRESETS = {
 
   nfl: {
     label: "NFL Players",
-    icon: "🏈",
     defaultSlots: "QB, RB, WR, WR, TE",
     defaultBudget: 20,
     items: [
@@ -96,7 +94,6 @@ const PRESETS = {
 
   mlb: {
     label: "MLB Players",
-    icon: "⚾",
     defaultSlots: "P, C, IF, OF, DH",
     defaultBudget: 20,
     items: [

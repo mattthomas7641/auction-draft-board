@@ -5,24 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="A live budget auction draft for NBA, NFL, or MLB players. Everyone starts with the same budget, bids out loud, and builds the best roster.">
 <title>Build Your Team — Auction Draft</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23111111'/%3E%3Ctext x='50' y='63' font-family='Arial,sans-serif' font-weight='700' font-size='32' fill='white' text-anchor='middle'%3EBYT%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=4">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
 
 <header class="site-nav">
   <button type="button" class="nav-btn nav-btn-hidden" id="nav-home" title="Back to setup">Home</button>
   <span class="site-nav-title"><span class="site-nav-mark">BYT</span>Build Your Team</span>
-  <button type="button" class="nav-btn nav-btn-hidden" id="nav-back" title="Back to draft">Back</button>
+  <button type="button" class="nav-btn nav-btn-hidden" id="nav-back" title="Back to draft">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Back
+  </button>
 </header>
 
 <!-- ============ SETUP VIEW ============ -->
 <section id="setup-view" class="view">
   <header class="setup-header">
-    <span class="eyebrow">Live Auction Draft</span>
     <h1>Build Your Team</h1>
     <p class="tagline">Same budget for everyone. Bid it out loud. Best roster wins.</p>
   </header>
@@ -31,9 +33,9 @@
     <div class="field-group">
       <label class="field-label">Theme</label>
       <div class="theme-picker" id="theme-picker">
-        <button type="button" class="theme-btn active" data-theme="nba">🏀 NBA</button>
-        <button type="button" class="theme-btn" data-theme="nfl">🏈 NFL</button>
-        <button type="button" class="theme-btn" data-theme="mlb">⚾ MLB</button>
+        <button type="button" class="theme-btn active" data-theme="nba">NBA</button>
+        <button type="button" class="theme-btn" data-theme="nfl">NFL</button>
+        <button type="button" class="theme-btn" data-theme="mlb">MLB</button>
       </div>
     </div>
 
@@ -62,8 +64,8 @@
     <div class="field-group">
       <label class="field-label">Draft mode</label>
       <div class="theme-picker" id="mode-picker">
-        <button type="button" class="theme-btn active" data-mode="open">🎤 Open Auction</button>
-        <button type="button" class="theme-btn" data-mode="must">🔁 Must-Draft (alternating)</button>
+        <button type="button" class="theme-btn active" data-mode="open">Open Auction</button>
+        <button type="button" class="theme-btn" data-mode="must">Must-Draft (alternating)</button>
       </div>
       <p class="field-hint" id="mode-hint">Any item can go unsold if nobody bids on it.</p>
     </div>
@@ -99,11 +101,11 @@
   <div class="item-card" id="item-card">
     <div class="item-photo-wrap" id="item-photo-wrap">
       <img id="item-photo" class="item-photo hidden" alt="">
-      <div id="item-avatar" class="item-avatar hidden"></div>
+      <div id="item-avatar" class="item-avatar hidden" aria-hidden="true"></div>
     </div>
     <div class="item-category" id="item-category">—</div>
     <div class="item-name" id="item-name">—</div>
-    <div class="bid-display">
+    <div class="bid-display" id="bid-display" aria-live="polite">
       <span class="bid-dollar">$</span><span id="bid-amount">0</span>
     </div>
     <div class="bid-controls">
@@ -114,7 +116,7 @@
     </div>
   </div>
 
-  <div class="leader-banner" id="leader-banner">No bidder selected yet</div>
+  <div class="leader-banner" id="leader-banner" aria-live="polite">No bidder selected yet</div>
 
   <div class="teams-strip" id="teams-strip"></div>
 
@@ -123,13 +125,12 @@
     <button type="button" class="skip-btn" id="skip-btn">No Sale / Skip</button>
   </div>
 
-  <div class="event-log" id="event-log"></div>
+  <div class="event-log" id="event-log" aria-live="polite"></div>
 </section>
 
 <!-- ============ RESULTS VIEW ============ -->
 <section id="results-view" class="view hidden">
   <header class="setup-header">
-    <span class="eyebrow">Final Rosters</span>
     <h1 id="results-title">Draft Complete</h1>
     <p class="tagline">Here's what everyone built.</p>
   </header>
@@ -142,13 +143,13 @@
       <label class="field-label">Declare the winner</label>
       <div id="winner-buttons" class="theme-picker"></div>
     </div>
-    <div id="winner-banner" class="leader-banner hidden"></div>
+    <div id="winner-banner" class="leader-banner hidden" aria-live="assertive"></div>
   </div>
 
   <button type="button" class="primary-btn" id="restart-btn">New Draft</button>
 </section>
 
-<script src="js/presets.js?v=3"></script>
-<script src="js/app.js?v=3"></script>
+<script src="js/presets.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
 </body>
 </html>

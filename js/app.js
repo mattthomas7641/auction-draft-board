@@ -173,7 +173,9 @@ function initSetup() {
       swatch.style.background = TEAM_COLORS[i % TEAM_COLORS.length];
       const input = document.createElement("input");
       input.type = "text";
+      input.id = `team-name-${i}`;
       input.placeholder = `Team ${i + 1}`;
+      input.setAttribute("aria-label", `Team ${i + 1} name`);
       input.value = existing[i] || "";
       input.dataset.teamIndex = i;
       row.append(swatch, input);
@@ -273,6 +275,7 @@ function initDraftViewOnce() {
   els.itemCategory = $("item-category");
   els.itemName = $("item-name");
   els.bidAmount = $("bid-amount");
+  els.bidDisplay = $("bid-display");
   els.leaderBanner = $("leader-banner");
   els.teamsStrip = $("teams-strip");
   els.soldBtn = $("sold-btn");
@@ -285,6 +288,7 @@ function initDraftViewOnce() {
       const amt = Number(btn.dataset.amt);
       state.currentBid = Math.max(0, state.currentBid + amt);
       renderDraft();
+      pulseBidDisplay();
     });
   });
 
@@ -311,6 +315,16 @@ function initDraftViewOnce() {
   els.skipBtn.addEventListener("click", skipItem);
   els.undoBtn.addEventListener("click", undo);
   els.finishBtn.addEventListener("click", showResults);
+}
+
+// Subtle feedback that a bid tap registered. Transition-based (not
+// keyframes) so rapid repeat taps retarget smoothly instead of jumping.
+let pulseTimer = null;
+function pulseBidDisplay() {
+  if (!els.bidDisplay) return;
+  clearTimeout(pulseTimer);
+  els.bidDisplay.classList.add("pulse");
+  pulseTimer = setTimeout(() => els.bidDisplay.classList.remove("pulse"), 140);
 }
 
 function currentItem() {
@@ -416,10 +430,10 @@ function renderDraft() {
   if (!leaderTeam) {
     els.leaderBanner.textContent = "Tap a team below once they're the highest bidder";
   } else if (isAllIn) {
-    els.leaderBanner.textContent = `🔥 ${leaderTeam.name} is ALL IN for $${state.currentBid} — others can still steal by outbidding!`;
+    els.leaderBanner.textContent = `${leaderTeam.name} is ALL IN for $${state.currentBid} — others can still steal by outbidding!`;
     els.leaderBanner.classList.add("all-in");
   } else if (isDefaultOnTurn) {
-    els.leaderBanner.textContent = `🔁 ${leaderTeam.name}'s turn — they get this for $0 unless outbid`;
+    els.leaderBanner.textContent = `${leaderTeam.name}’s turn — they get this for $0 unless outbid`;
     els.leaderBanner.classList.add("on-turn");
   } else {
     els.leaderBanner.textContent = `${leaderTeam.name} is bidding $${state.currentBid}`;
@@ -439,18 +453,19 @@ function renderDraft() {
       + (team.id === state.leaderId && state.currentBid > 0 && state.currentBid === team.budget ? " all-in" : "")
       + (disabled ? " disabled" : "");
     tile.dataset.teamId = team.id;
-    tile.style.setProperty("--team-color", team.color);
 
     const slotsHtml = team.slots
       .map((s) => `<span class="slot-chip${s.item ? " filled" : ""}">${s.item ? escapeHtml(s.item.name) : escapeHtml(s.label)}</span>`)
       .join("");
+    const onTurnBadge = state.mustDraft && onTurnTeam && onTurnTeam.id === team.id
+      ? `<span class="slot-chip">On turn</span>` : "";
 
     tile.innerHTML = `
       <div class="team-tile-top">
-        <span class="team-tile-name">${escapeHtml(team.name)}${state.mustDraft && onTurnTeam && onTurnTeam.id === team.id ? " ⏳" : ""}</span>
+        <span class="team-tile-name"><span class="team-tile-dot" style="background:${team.color}"></span>${escapeHtml(team.name)}</span>
         <span class="team-tile-budget${team.budget < 5 ? " low" : ""}">$${team.budget}</span>
       </div>
-      <span class="team-tile-slots">${slotsHtml}</span>
+      <span class="team-tile-slots">${onTurnBadge}${slotsHtml}</span>
       <button type="button" class="all-in-btn" data-team-id="${team.id}" ${canAllIn ? "" : "disabled"}>ALL IN ($${team.budget})</button>
     `;
     els.teamsStrip.appendChild(tile);
@@ -532,7 +547,7 @@ function confirmSold() {
   const bidAmt = state.currentBid;
   team.budget -= bidAmt;
   team.slots[slotIdx] = { label: team.slots[slotIdx].label, item: { name: item.name, value: item.value, photo: item.photo } };
-  logEvent(`✅ ${item.name} → ${team.name} for $${bidAmt}`);
+  logEvent(`Sold: ${item.name} to ${team.name} for $${bidAmt}`);
 
   if (state.mustDraft) advanceTurn();
   state.poolIndex += 1;
@@ -549,9 +564,9 @@ function skipItem() {
   if (brokeTeam) {
     const slotIdx = findSlotForItem(brokeTeam, item);
     brokeTeam.slots[slotIdx] = { label: brokeTeam.slots[slotIdx].label, item: { name: item.name, value: item.value, photo: item.photo } };
-    logEvent(`🎁 ${item.name} auto-drafted to ${brokeTeam.name} (out of budget)`);
+    logEvent(`Auto-drafted: ${item.name} to ${brokeTeam.name} (out of budget)`);
   } else {
-    logEvent(`⏭️ ${item.name} — no takers, skipped`);
+    logEvent(`Skipped: ${item.name} — no takers`);
   }
 
   state.poolIndex += 1;
@@ -609,7 +624,6 @@ function showResults() {
 
     const card = document.createElement("div");
     card.className = "result-team";
-    card.style.setProperty("--team-color", team.color);
 
     const rosterHtml = team.slots
       .map((s) => `
@@ -622,7 +636,7 @@ function showResults() {
 
     card.innerHTML = `
       <div class="result-team-header">
-        <span class="result-team-name">${escapeHtml(team.name)}</span>
+        <span class="result-team-name"><span class="team-tile-dot" style="background:${team.color}"></span>${escapeHtml(team.name)}</span>
         <span class="result-team-spent">$${spent} spent · $${team.budget} left</span>
       </div>
       <div class="result-roster">${rosterHtml}</div>
@@ -643,9 +657,14 @@ function showResults() {
     btn.className = "theme-btn";
     btn.textContent = team.name;
     btn.addEventListener("click", () => {
-      $("winner-banner").textContent = `🏆 ${team.name} wins!`;
-      $("winner-banner").classList.remove("hidden");
-      $("winner-banner").classList.add("active");
+      const banner = $("winner-banner");
+      banner.textContent = `${team.name} wins!`;
+      banner.classList.remove("hidden");
+      // Force the entrance animation to replay even if a winner was
+      // already declared once (re-adding a present class is a no-op).
+      banner.classList.remove("active");
+      void banner.offsetWidth;
+      banner.classList.add("active");
     });
     winnerButtons.appendChild(btn);
   });

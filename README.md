@@ -15,9 +15,9 @@ Everyone can see the current item and each team's remaining budget while they
 call out bids; the host taps the leading team and bumps the bid counter, then
 hits **SOLD!** to lock it in.
 
-0. **Home / Back** — a nav bar sits above every screen. **🏠 Home** jumps back
+0. **Home / Back** — a nav bar sits above every screen. **Home** jumps back
    to Setup (confirms first if a draft is in progress, so you don't lose it by
-   accident); **← Back** appears on the Results screen to jump back into the
+   accident); **Back** appears on the Results screen to jump back into the
    draft in progress, in case you hit Finish early. Setup/Draft/Results are
    also real browser history entries, so the actual browser/OS **Back**
    button works too — it'll step from Results → Draft → Setup just like
@@ -55,13 +55,26 @@ hits **SOLD!** to lock it in.
    values, an auto-score is shown as a reference; either way you can declare
    the winner by vote/judge with one tap.
 
+## Design system
+
+The visual system (`DESIGN.md`) is adapted from Nike's commerce chrome: pure
+black/white/soft-gray, pill-shaped controls, zero drop-shadow elevation, and
+a single display-type tier (Bebas Neue) reserved for the two real "hero"
+moments in the product — the live bid amount and the winner declaration.
+`PRODUCT.md` records who this is for and why. Everything else stays flat
+Inter, with one warm accent ("moment": gold/amber) for big, non-negative,
+high-stakes beats like ALL IN and the winner reveal, and red reserved
+strictly for negative states (a low budget, a subtract action).
+
 ## Project structure
 
 ```
 index.html       Setup / Draft / Results views (all in one page)
-css/style.css     Styling (light + dark mode)
+css/style.css     Styling (light + dark mode, DESIGN.md tokens)
 js/presets.js     Built-in item pools (NBA, NFL, MLB)
 js/app.js         All app logic
+PRODUCT.md        Who this is for, and why (impeccable init)
+DESIGN.md         The visual system (npx getdesign, Nike-derived)
 ```
 
 ## Adding your own theme
@@ -77,4 +90,3 @@ non-sports category, etc.), add an entry to `PRESETS` in
 
 - Save/resume an in-progress draft (currently a refresh resets it)
 - Per-device bidding instead of a single host screen
-- Photos per item
