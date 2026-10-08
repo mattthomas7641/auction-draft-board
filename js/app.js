@@ -1,4 +1,4 @@
-// Build Your Team — host-controlled auction draft
+// Auction Draft Board — host-controlled auction draft
 // Single host screen: reveal an item, teams call out bids out loud,
 // host taps the leading team + bumps the bid, then confirms "SOLD!".
 

@@ -1,4 +1,4 @@
-# Build Your Team
+# Auction Draft Board
 
 A budget auction draft, for any category. Inspired by the "NBA Bidding Draft"
 TikTok format: each team starts with a fixed budget (default $20), items are
