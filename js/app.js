@@ -482,7 +482,9 @@ function renderDraft() {
 
   renderEventLog();
 
-  els.soldBtn.disabled = state.leaderId === null;
+  // SOLD stays locked until a team leads and can cover the current bid.
+  const soldLeader = state.teams.find((t) => t.id === state.leaderId);
+  els.soldBtn.disabled = !soldLeader || soldLeader.budget < state.currentBid;
   els.skipBtn.classList.toggle("hidden", state.mustDraft);
 }
 
@@ -545,6 +547,7 @@ function confirmSold() {
   const item = currentItem();
   const team = state.teams.find((t) => t.id === state.leaderId);
   if (!item || !team) return;
+  if (team.budget < state.currentBid) return; // a team can't spend more than it has left
 
   const slotIdx = findSlotForItem(team, item);
   if (slotIdx === -1) {

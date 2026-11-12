@@ -1,5 +1,7 @@
 # Auction Draft Board
 
+**Live demo:** https://mattthomas7641.github.io/auction-draft-board/
+
 A budget auction draft, for any category. Inspired by the "NBA Bidding Draft"
 TikTok format: each team starts with a fixed budget (default $20), items are
 revealed one at a time, teams bid out loud, and the highest bidder gets the
@@ -75,7 +77,7 @@ elevation.
 
 ```
 index.html       Setup / Draft / Results views (all in one page)
-css/style.css     Styling (light + dark mode, DESIGN.md tokens)
+css/style.css     Styling (light theme, DESIGN.md tokens)
 js/presets.js     Built-in item pools (NBA, NFL, MLB)
 js/app.js         All app logic
 PRODUCT.md        Who this is for, and why (impeccable init)
