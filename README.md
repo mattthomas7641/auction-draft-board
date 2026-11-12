@@ -45,7 +45,7 @@ index.html        Setup, Draft and Results views (one page)
 css/style.css     Styling
 js/presets.js     Built-in player pools (NBA, NFL, MLB)
 js/app.js         App logic: state, bidding rules, undo, history
-docs/             PRODUCT.md (who it is for), DESIGN.md (visual system), screenshot
+docs/             Screenshot
 ```
 
 ## Adding a theme

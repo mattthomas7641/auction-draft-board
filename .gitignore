@@ -2,3 +2,7 @@
 node_modules/
 .claude/
 .impeccable/
+
+# Local design notes
+DESIGN.md
+PRODUCT.md
